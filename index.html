@@ -1252,8 +1252,19 @@
         }
 
         @media (max-width: 600px) {
-            .features-grid {
+
+            .features-grid,
+            .gallery-grid,
+            .video-grid,
+            .use-cases-grid,
+            .pricing-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .gallery-item .gallery-caption,
+            .video-item .video-caption {
+                padding: 16px 12px 12px;
+                font-size: 0.8rem;
             }
 
             .nav-links {
