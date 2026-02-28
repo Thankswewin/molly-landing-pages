@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molly — Real-Time AI Video for Streamers & Creators</title>
+    <meta name="description"
+        content="Transform your webcam feed in real-time with AI. Molly is the ultimate desktop tool for streamers and creators — camera selection, PiP, OBS-ready output, and zero branding.">
+    <link rel="icon" href="./icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888a0;
+            --text-muted: #5a5a72;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --accent-cyan: #06b6d4;
+            --gradient-main: linear-gradient(135deg, #3b82f6, #8b5cf6, #a855f7);
+            --gradient-glow: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(168, 85, 247, 0.15));
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background: var(--bg-primary);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Ambient Background ── */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-bg .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .ambient-bg .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent-blue);
+            top: -200px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .ambient-bg .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent-purple);
+            top: 40%;
+            right: -200px;
+            animation-delay: -7s;
+        }
+
+        .ambient-bg .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-cyan);
+            bottom: -100px;
+            left: 30%;
+            animation-delay: -14s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.95);
+            }
+        }
+
+        /* ── Container ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Navigation ── */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav.scrolled {
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+        }
+
+        .nav-logo span {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-main);
+            color: white !important;
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            -webkit-text-fill-color: white !important;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: clamp(1.05rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 48px;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--gradient-main);
+            color: white;
+            padding: 16px 36px;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.35);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 16px 36px;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .hero-preview {
+            margin-top: 72px;
+            width: 100%;
+            max-width: 960px;
+            animation: fadeInUp 0.8s ease 0.5s both;
+        }
+
+        .hero-preview-frame {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-secondary);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 20px 80px rgba(0, 0, 0, 0.5),
+                0 0 120px rgba(139, 92, 246, 0.08);
+        }
+
+        .hero-preview-frame::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .hero-preview-frame img {
+            width: 100%;
+            display: block;
+        }
+
+        /* ── Hero Carousel ── */
+        .carousel {
+            position: relative;
+        }
+
+        .carousel-slides {
+            position: relative;
+            aspect-ratio: 16 / 10;
+        }
+
+        .carousel-slides img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .carousel-slides img.active {
+            opacity: 1;
+        }
+
+        .carousel-controls {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .carousel-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: scale(1.1);
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0;
+        }
+
+        .carousel-dot.active {
+            background: var(--accent-purple);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* ── Gallery Section ── */
+        .gallery {
+            padding: 120px 0;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .gallery-item {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .gallery-item:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(139, 92, 246, 0.12);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+        }
+
+        .gallery-item .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px 20px 16px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        }
+
+        /* ── Video Section ── */
+        .video-showcase {
+            padding: 120px 0;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .video-item {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .video-item:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(139, 92, 246, 0.12);
+        }
+
+        .video-item video {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .video-item .video-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 32px 20px 16px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .video-item .live-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            backdrop-filter: blur(4px);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* ── Section Titles ── */
+
+        /* ── Use Cases Section ── */
+        .use-cases {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .use-case-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .use-case-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .use-case-card-body {
+            padding: 24px 24px 28px;
+        }
+
+        .use-case-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-main);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .use-case-card:hover {
+            border-color: rgba(139, 92, 246, 0.25);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.1);
+        }
+
+        .use-case-card:hover::before {
+            opacity: 1;
+        }
+
+        .use-case-icon {
+            font-size: 2.2rem;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .use-case-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .use-case-card p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .use-case-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(139, 92, 246, 0.12);
+            color: var(--accent-purple);
+        }
+
+        @media (max-width: 900px) {
+            .use-cases-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .use-cases-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 580px;
+            margin: 0 auto;
+        }
+
+        /* ── Features Grid ── */
+        .features {
+            padding: 120px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-main);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.08);
+        }
+
+        .feature-icon svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        /* ── How It Works ── */
+        .how-it-works {
+            padding: 120px 0;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
+            opacity: 0.2;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-glow);
+            border: 2px solid var(--border-subtle);
+            background-clip: padding-box;
+            position: relative;
+        }
+
+        .step-number span {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .step h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            max-width: 300px;
+            margin: 0 auto;
+            line-height: 1.65;
+        }
+
+        /* ── Showcase / Bento ── */
+        .showcase {
+            padding: 120px 0;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 40px 36px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .bento-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .bento-card.wide {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .bento-card .bento-text {
+            flex: 1;
+        }
+
+        .bento-card .bento-visual {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bento-card h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .bento-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .bento-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .keyboard-shortcut {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Inter', monospace;
+            color: var(--text-secondary);
+        }
+
+        /* ── Specs Row ── */
+        .specs {
+            padding: 80px 0;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .spec-item {
+            text-align: center;
+            padding: 32px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+        }
+
+        .spec-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .spec-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ── Pricing Section ── */
+        .pricing {
+            padding: 120px 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(139, 92, 246, 0.2);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.08);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid transparent;
+            background-image: linear-gradient(var(--bg-card), var(--bg-card)),
+                linear-gradient(135deg, #8b5cf6, #3b82f6, #8b5cf6);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+            transform: scale(1.04);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.04) translateY(-6px);
+            box-shadow: 0 24px 60px rgba(139, 92, 246, 0.2);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-main);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 18px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .pricing-duration {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+
+        .pricing-price {
+            margin-bottom: 8px;
+        }
+
+        .pricing-price .currency {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            vertical-align: top;
+            line-height: 1;
+            position: relative;
+            top: 8px;
+        }
+
+        .pricing-price .amount {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .pricing-period {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 28px;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .pricing-features li {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: #34d399;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .pricing-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .pricing-btn.secondary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .pricing-btn.secondary:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .pricing-btn.primary {
+            background: var(--gradient-main);
+            color: white;
+        }
+
+        .pricing-btn.primary:hover {
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 900px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── CTA ── */
+        .cta {
+            padding: 120px 0;
+            text-align: center;
+        }
+
+        .cta-box {
+            background: var(--gradient-glow);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 80px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 120%, rgba(139, 92, 246, 0.08), transparent 50%);
+            pointer-events: none;
+        }
+
+        .cta-box h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .cta-box p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .cta-box .btn-primary {
+            position: relative;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-left img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+        }
+
+        .footer-left span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-secondary);
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .steps::before {
+                display: none;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bento-card.wide {
+                grid-column: span 1;
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .specs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .specs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <img src="./icon.png" alt="Molly">
+                <span>Molly</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#use-cases">Use Cases</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#showcase">Showcase</a></li>
+                <li><a href="#download" class="nav-cta">Download</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Real-time AI — powered by Decart AI
+        </div>
+        <h1>
+            Your Face.<br>
+            <span class="gradient-text">Any Character.</span><br>
+            Live.
+        </h1>
+        <p class="hero-sub">
+            Molly transforms your webcam into a real-time AI video engine.
+            Perfect for streamers, creators, and anyone who wants to become
+            whoever they imagine — instantly.
+        </p>
+        <div class="hero-actions">
+            <a href="#download" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Download for Windows
+            </a>
+            <a href="https://github.com/Thankswewin/lucy-wrapper" target="_blank" class="btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+
+        <div class="hero-preview">
+            <div class="hero-preview-frame carousel" id="heroCarousel">
+                <div class="carousel-slides">
+                    <img src="./images/laptop-mockup.png" alt="Molly on laptop — real-time face swap" class="active">
+                    <img src="./images/laptop-mockup-2.png" alt="Molly on laptop — anime character transform">
+                    <img src="./images/laptop-mockup-3.png" alt="Molly on laptop — female character swap">
+                    <img src="./images/laptop-mockup-4.png" alt="Molly on laptop — body swap demo">
+                </div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" onclick="prevSlide()" aria-label="Previous">‹</button>
+                    <button class="carousel-btn" onclick="nextSlide()" aria-label="Next">›</button>
+                </div>
+                <div class="carousel-dots" id="carouselDots"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">In Action</span>
+                <h2>See Molly Transform in Real-Time</h2>
+                <p>Real screenshots from Molly — webcam in, AI character out. Zero delay.</p>
+            </div>
+
+            <div class="gallery-grid">
+                <div class="gallery-item reveal">
+                    <img src="./images/Screenshot 2026-02-25 081504.png"
+                        alt="Real-time face swap — webcam to AI character">
+                    <div class="gallery-caption">Real-Time Face Swap</div>
+                </div>
+                <div class="gallery-item reveal">
+                    <img src="./images/Screenshot 2026-02-25 081653.png" alt="Anime-style character transformation">
+                    <div class="gallery-caption">Anime Character Transform</div>
+                </div>
+                <div class="gallery-item reveal">
+                    <img src="./images/Screenshot 2026-02-25 081802.png" alt="Female character real-time swap">
+                    <div class="gallery-caption">Instant Character Swap</div>
+                </div>
+                <div class="gallery-item reveal">
+                    <img src="./images/Screenshot 2026-02-25 081422.png" alt="Molly desktop interface overview">
+                    <div class="gallery-caption">Molly Desktop Interface</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Showcase Section -->
+    <section class="video-showcase" id="videos">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Watch It Live</span>
+                <h2>Real-Time Transformation Demos</h2>
+                <p>See Molly in action — instant character swaps powered by AI. No post-processing, no delays.</p>
+            </div>
+
+            <div class="video-grid">
+                <div class="video-item reveal">
+                    <video src="./videos/molly-demo-1.mp4" autoplay muted loop playsinline></video>
+                    <span class="live-badge">● Live</span>
+                    <div class="video-caption">Real-Time Body Swap</div>
+                </div>
+                <div class="video-item reveal">
+                    <video src="./videos/molly-demo-2.mp4" autoplay muted loop playsinline></video>
+                    <span class="live-badge">● Live</span>
+                    <div class="video-caption">Character Transform</div>
+                </div>
+                <div class="video-item reveal">
+                    <video src="./videos/molly-demo-3.mp4" autoplay muted loop playsinline></video>
+                    <span class="live-badge">● Live</span>
+                    <div class="video-caption">Anime Style Swap</div>
+                </div>
+                <div class="video-item reveal">
+                    <video src="./videos/molly-demo-4.mp4" autoplay muted loop playsinline></video>
+                    <span class="live-badge">● Live</span>
+                    <div class="video-caption">Full Body Transform</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Features</span>
+                <h2>Everything a Creator Needs</h2>
+                <p>Built for performance and simplicity. No bloat, no branding, no limits.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#a78bfa" />
+                                    <stop offset="1" stop-color="#3b82f6" />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14v-4zM3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"
+                                stroke="url(#g1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Camera Selection</h3>
+                    <p>Choose your preferred webcam on launch through an intuitive selection modal. Switch cameras
+                        mid-session without restarting.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="g2" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#f59e0b" />
+                                    <stop offset="1" stop-color="#ef4444" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="url(#g2)" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Auto-Start Sessions</h3>
+                    <p>Hit launch and you're live in seconds. Molly auto-starts your AI transformation session so you
+                        never miss a moment.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="g3" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="1" stop-color="#3b82f6" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="2" y="3" width="20" height="14" rx="2" stroke="url(#g3)" stroke-width="1.8" />
+                            <rect x="14" y="11" width="8" height="6" rx="1" stroke="url(#g3)" stroke-width="1.8" />
+                            <path d="M8 21h8" stroke="url(#g3)" stroke-width="1.8" stroke-linecap="round" />
+                            <path d="M12 17v4" stroke="url(#g3)" stroke-width="1.8" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3>Picture-in-Picture</h3>
+                    <p>Pop out the AI output into a floating PiP window. Keep your transformation visible while working
+                        in other apps.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="g4" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#8b5cf6" />
+                                    <stop offset="1" stop-color="#ec4899" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
+                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
+                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
+                            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
+                        </svg>
+                    </div>
+                    <h3>OBS-Ready Output</h3>
+                    <p>Detach the output into a frameless, always-on-top window. Perfect for capturing in OBS or any
+                        streaming software.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="g5" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#a78bfa" />
+                                    <stop offset="1" stop-color="#60a5fa" />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                d="M12 2l2.09 6.26L20.18 9l-5 4.36L16.82 20 12 16.77 7.18 20l1.64-6.64-5-4.36 6.09-.74L12 2z"
+                                stroke="url(#g5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Zero Branding</h3>
+                    <p>All watermarks, logos, timers, and promotional elements are completely removed. What your
+                        audience sees is pure content.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="g6" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#c084fc" />
+                                    <stop offset="1" stop-color="#818cf8" />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-5.095-8 0-8zM5.822 8c5.096 0 5.096 8 0 8-5.095 0-5.095-8 0-8z"
+                                stroke="url(#g6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <h3>Unlimited Sessions</h3>
+                    <p>The session countdown timer is frozen so your creative flow runs uninterrupted for as long as you
+                        want.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="use-cases" id="use-cases">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Use Cases</span>
+                <h2>Who Is Molly For?</h2>
+                <p>Whether you stream, create content, or just want to have fun — Molly has you covered.</p>
+            </div>
+
+            <div class="use-cases-grid">
+                <div class="use-case-card reveal">
+                    <img src="./images/usecase-streaming.png" alt="Anonymous streaming setup">
+                    <div class="use-case-card-body">
+                        <div class="use-case-icon">🎭</div>
+                        <h3>Anonymous Streaming</h3>
+                        <p>Stream on Twitch, YouTube, or Kick without ever revealing your real face. Become any
+                            character while your natural movements and expressions come through in real time. Stay
+                            completely anonymous while building a loyal audience.</p>
+                        <span class="use-case-tag">Twitch · YouTube · Kick</span>
+                    </div>
+                </div>
+                <div class="use-case-card reveal">
+                    <img src="./images/usecase-vtuber.png" alt="VTuber without hardware">
+                    <div class="use-case-card-body">
+                        <div class="use-case-icon">🌟</div>
+                        <h3>VTuber Without the Setup</h3>
+                        <p>Skip expensive VTuber rigs, face tracking hardware, and 3D model commissions. Molly gives you
+                            instant character transformation with just a webcam — no motion capture suit required.</p>
+                        <span class="use-case-tag">Zero Hardware Needed</span>
+                    </div>
+                </div>
+                <div class="use-case-card reveal">
+                    <img src="./images/usecase-content.png" alt="Content creation with AI">
+                    <div class="use-case-card-body">
+                        <div class="use-case-icon">📱</div>
+                        <h3>Content Creation</h3>
+                        <p>Create viral TikToks, YouTube Shorts, and Instagram Reels as any character. Stand out from
+                            millions of creators with AI-powered transformations that grab attention in the first
+                            second.</p>
+                        <span class="use-case-tag">TikTok · Reels · Shorts</span>
+                    </div>
+                </div>
+                <div class="use-case-card reveal">
+                    <img src="./images/usecase-privacy.png" alt="Privacy-first video calls">
+                    <div class="use-case-card-body">
+                        <div class="use-case-icon">🔒</div>
+                        <h3>Privacy-First Video Calls</h3>
+                        <p>Join Zoom, Google Meet, or Discord calls with a completely different identity. Perfect for
+                            freelancers, consultants, or anyone who values privacy while maintaining natural
+                            face-to-face conversation.</p>
+                        <span class="use-case-tag">Zoom · Discord · Meet</span>
+                    </div>
+                </div>
+                <div class="use-case-card reveal">
+                    <img src="./images/usecase-roleplay.png" alt="Roleplay and entertainment">
+                    <div class="use-case-card-body">
+                        <div class="use-case-icon">🎮</div>
+                        <h3>Roleplay & Entertainment</h3>
+                        <p>Transform into celebrities, anime characters, historical figures, or completely original
+                            personas. Real-time AI body swap makes cosplay digital and instant — perfect for
+                            entertainment streams and collabs.</p>
+                        <span class="use-case-tag">Cosplay · Improv · Comedy</span>
+                    </div>
+                </div>
+                <div class="use-case-card reveal">
+                    <img src="./images/usecase-brand.png" alt="Brand and mascot streams">
+                    <div class="use-case-card-body">
+                        <div class="use-case-icon">🚀</div>
+                        <h3>Brand & Mascot Streams</h3>
+                        <p>Turn your brand mascot or company avatar into a live, talking character. Let your brand
+                            personality come alive on stream without hiring voice actors or animators. AI handles it
+                            all.</p>
+                        <span class="use-case-tag">Marketing · Brands · Startups</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">How It Works</span>
+                <h2>Live in Three Steps</h2>
+                <p>From download to on-screen in under a minute.</p>
+            </div>
+
+            <div class="steps">
+                <div class="step reveal">
+                    <div class="step-number"><span>1</span></div>
+                    <h3>Download & Launch</h3>
+                    <p>Grab Molly, install dependencies with <code>npm install</code>, and launch the app.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-number"><span>2</span></div>
+                    <h3>Select Your Camera</h3>
+                    <p>Pick your webcam from the on-screen modal. Molly auto-starts the AI session for you.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-number"><span>3</span></div>
+                    <h3>Go Live</h3>
+                    <p>Pop out the output window, capture it in OBS, and stream your AI-transformed self to the world.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase / Bento Section -->
+    <section class="showcase" id="showcase">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Showcase</span>
+                <h2>Built for Creators Who Move Fast</h2>
+                <p>Every detail is designed to keep you focused on content, not configuration.</p>
+            </div>
+
+            <div class="bento-grid">
+                <div class="bento-card wide reveal">
+                    <div class="bento-text">
+                        <span class="bento-emoji">🪟</span>
+                        <h3>Detachable Output Window</h3>
+                        <p>Open a separate, frameless, always-on-top window that shows only the AI output. Drag it,
+                            resize it, and capture it directly in OBS — no cropping or fiddling required.</p>
+                        <div class="keyboard-shortcut">
+                            <span class="key">F3</span>
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">Toggle output window</span>
+                        </div>
+                    </div>
+                    <div class="bento-visual">
+                        <div
+                            style="width: 280px; height: 180px; border-radius: 12px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1)); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                            🖥️
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card reveal">
+                    <span class="bento-emoji">🖼️</span>
+                    <h3>Picture-in-Picture Mode</h3>
+                    <p>Keep your AI transformation visible in a floating window while you work in other apps. Press F2
+                        and it's always there.</p>
+                    <div class="keyboard-shortcut">
+                        <span class="key">F2</span>
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Toggle PiP</span>
+                    </div>
+                </div>
+
+                <div class="bento-card reveal">
+                    <span class="bento-emoji">🖥️</span>
+                    <h3>System Tray Integration</h3>
+                    <p>Minimize Molly to the system tray and restore it with a single click. It stays out of your way
+                        until you need it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Row -->
+    <section class="specs">
+        <div class="container">
+            <div class="specs-grid reveal">
+                <div class="spec-item">
+                    <span class="spec-value">Real-Time</span>
+                    <span class="spec-label">AI Video Processing</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-value">0s</span>
+                    <span class="spec-label">Setup Time</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-value">100%</span>
+                    <span class="spec-label">Brandless Output</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-value">∞</span>
+                    <span class="spec-label">Session Duration</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Pricing</span>
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that fits your workflow. All plans include full access to every feature.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card reveal">
+                    <div class="pricing-duration">Daily</div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span><span class="amount">10</span>
+                    </div>
+                    <div class="pricing-period">per day</div>
+                    <ul class="pricing-features">
+                        <li>Full AI body swap</li>
+                        <li>All character presets</li>
+                        <li>OBS-ready output</li>
+                        <li>24-hour access</li>
+                    </ul>
+                    <a href="#" class="pricing-btn secondary" data-plan="daily" data-amount="10">Get Started</a>
+                </div>
+
+                <div class="pricing-card reveal">
+                    <div class="pricing-duration">Weekly</div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span><span class="amount">50</span>
+                    </div>
+                    <div class="pricing-period">per week</div>
+                    <ul class="pricing-features">
+                        <li>Full AI body swap</li>
+                        <li>All character presets</li>
+                        <li>OBS-ready output</li>
+                        <li>7-day access</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="#" class="pricing-btn secondary" data-plan="weekly" data-amount="50">Get Started</a>
+                </div>
+
+                <div class="pricing-card reveal">
+                    <div class="pricing-duration">6 Months</div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span><span class="amount">500</span>
+                    </div>
+                    <div class="pricing-period">6-month access</div>
+                    <ul class="pricing-features">
+                        <li>Full AI body swap</li>
+                        <li>All character presets</li>
+                        <li>OBS-ready output</li>
+                        <li>Unlimited sessions</li>
+                        <li>Priority support</li>
+                        <li>Early access to updates</li>
+                    </ul>
+                    <a href="#" class="pricing-btn secondary" data-plan="6months" data-amount="500">Get Started</a>
+                </div>
+
+                <div class="pricing-card featured reveal">
+                    <span class="pricing-badge">⭐ Most Popular</span>
+                    <div class="pricing-duration">Lifetime</div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span><span class="amount">2,000</span>
+                    </div>
+                    <div class="pricing-period">one-time payment</div>
+                    <ul class="pricing-features">
+                        <li>Full AI body swap</li>
+                        <li>All character presets</li>
+                        <li>OBS-ready output</li>
+                        <li>Unlimited sessions forever</li>
+                        <li>VIP priority support</li>
+                        <li>All future updates free</li>
+                        <li>Early beta features</li>
+                    </ul>
+                    <a href="#" class="pricing-btn primary" data-plan="lifetime" data-amount="2000">Get Lifetime
+                        Access</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="download">
+        <div class="container">
+            <div class="cta-box reveal">
+                <h2>Ready to Transform Your Stream?</h2>
+                <p>Download Molly and start creating AI-powered content in seconds. Free and open source.</p>
+                <a href="https://github.com/Thankswewin/lucy-wrapper" target="_blank" class="btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Get Molly — It's Free
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-left">
+                    <img src="./icon.png" alt="Molly">
+                    <span>© 2026 Molly by Philemon Ofotan</span>
+                </div>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/Thankswewin" target="_blank">GitHub</a></li>
+                    <li><a href="https://www.instagram.com/pheelymon.oftan/" target="_blank">Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Email Capture Modal -->
+    <div id="emailModal" class="email-modal-overlay" style="display:none;">
+        <div class="email-modal">
+            <button class="email-modal-close" id="modalClose">&times;</button>
+            <div class="email-modal-icon">💳</div>
+            <h3 id="modalPlanTitle">Complete Your Purchase</h3>
+            <p class="email-modal-subtitle" id="modalPlanDesc">Enter your email to receive your license key after
+                payment.</p>
+            <form id="emailForm">
+                <input type="email" id="emailInput" placeholder="your@email.com" required autocomplete="email">
+                <button type="submit" class="email-modal-btn" id="modalPayBtn">
+                    <span id="modalBtnText">Pay with Crypto</span>
+                </button>
+            </form>
+            <p class="email-modal-note">🔒 Your email is only used to deliver your license key.</p>
+        </div>
+    </div>
+
+    <style>
+        .email-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .email-modal {
+            background: var(--bg-card, #1a1a2e);
+            border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .email-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: var(--text-muted, #888);
+            font-size: 1.6rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .email-modal-close:hover {
+            color: #fff;
+        }
+
+        .email-modal-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .email-modal h3 {
+            font-size: 1.4rem;
+            margin: 0 0 6px;
+            color: var(--text-primary, #fff);
+        }
+
+        .email-modal-subtitle {
+            color: var(--text-muted, #aaa);
+            font-size: 0.9rem;
+            margin: 0 0 24px;
+        }
+
+        .email-modal form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .email-modal input[type="email"] {
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .email-modal input[type="email"]:focus {
+            border-color: var(--accent, #6366f1);
+        }
+
+        .email-modal-btn {
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .email-modal-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .email-modal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .email-modal-note {
+            color: var(--text-muted, #666);
+            font-size: 0.78rem;
+            margin: 16px 0 0;
+        }
+    </style>
+
+    <script>
+        // ── Scroll Reveal ──
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -60px 0px'
+        });
+
+        reveals.forEach(el => observer.observe(el));
+
+        // ── Nav scroll effect ──
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 40);
+        });
+
+        // ── Smooth scroll for anchor links ──
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // ── Staggered reveal for grid items ──
+        document.querySelectorAll('.features-grid .feature-card, .bento-grid .bento-card, .gallery-grid .gallery-item').forEach((card, i) => {
+            card.style.transitionDelay = `${i * 0.08}s`;
+        });
+
+        // ── Hero Carousel ──
+        const slides = document.querySelectorAll('.carousel-slides img');
+        const dotsContainer = document.getElementById('carouselDots');
+        let currentSlide = 0;
+        let autoplayInterval;
+
+        // Create dots
+        slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Slide ${i + 1}`);
+            dot.addEventListener('click', () => goToSlide(i));
+            dotsContainer.appendChild(dot);
+        });
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            dotsContainer.children[currentSlide].classList.remove('active');
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            dotsContainer.children[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            goToSlide((currentSlide + 1) % slides.length);
+            resetAutoplay();
+        }
+
+        function prevSlide() {
+            goToSlide((currentSlide - 1 + slides.length) % slides.length);
+            resetAutoplay();
+        }
+
+        function resetAutoplay() {
+            clearInterval(autoplayInterval);
+            autoplayInterval = setInterval(nextSlide, 4000);
+        }
+
+        // Start autoplay
+        autoplayInterval = setInterval(() => {
+            goToSlide((currentSlide + 1) % slides.length);
+        }, 4000);
+
+        // ════════════════════════════════════════
+        // ── Exnode Payment Integration with Email ──
+        // ════════════════════════════════════════
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://api.molly-body-swap.live';
+
+        const PLAN_LABELS = {
+            daily: { name: '1 Day Access', price: '$10' },
+            weekly: { name: '1 Week Access', price: '$50' },
+            '6months': { name: '6 Month Access', price: '$500' },
+            lifetime: { name: 'Lifetime Access', price: '$2,000' }
+        };
+
+        const modal = document.getElementById('emailModal');
+        const modalClose = document.getElementById('modalClose');
+        const emailForm = document.getElementById('emailForm');
+        const emailInput = document.getElementById('emailInput');
+        const modalPlanTitle = document.getElementById('modalPlanTitle');
+        const modalPlanDesc = document.getElementById('modalPlanDesc');
+        const modalBtnText = document.getElementById('modalBtnText');
+        const modalPayBtn = document.getElementById('modalPayBtn');
+
+        let selectedAmount = null;
+        let selectedPlan = null;
+
+        // Open modal when pricing button clicked
+        document.querySelectorAll('.pricing-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                selectedAmount = btn.getAttribute('data-amount');
+                selectedPlan = btn.getAttribute('data-plan');
+
+                if (!selectedAmount || !selectedPlan) return;
+
+                const label = PLAN_LABELS[selectedPlan] || { name: selectedPlan, price: `$${selectedAmount}` };
+                modalPlanTitle.textContent = `${label.name} — ${label.price}`;
+                modalPlanDesc.textContent = 'Enter your email to receive your license key after payment.';
+                modalBtnText.textContent = `Pay ${label.price} with Crypto`;
+                modalPayBtn.disabled = false;
+                emailInput.value = '';
+
+                modal.style.display = 'flex';
+                setTimeout(() => emailInput.focus(), 100);
+            });
+        });
+
+        // Close modal
+        modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        // Submit email and create payment
+        emailForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            if (!email || !selectedAmount || !selectedPlan) return;
+
+            modalBtnText.textContent = 'Creating Payment...';
+            modalPayBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/create-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: selectedAmount, plan_id: selectedPlan, email })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.payment_url) {
+                    window.location.href = result.data.payment_url;
+                } else if (result.success && result.data && result.data.url) {
+                    window.location.href = result.data.url;
+                } else if (result.success && result.data && result.data.payform_url) {
+                    window.location.href = result.data.payform_url;
+                } else {
+                    console.error('Payment Error:', result);
+                    modalBtnText.textContent = 'Error — Try Again';
+                    modalPayBtn.disabled = false;
+                }
+            } catch (err) {
+                console.error('Network Error:', err);
+                modalBtnText.textContent = 'Network Error — Retry';
+                modalPayBtn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+
+</html>
