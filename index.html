@@ -1268,8 +1268,12 @@
                 display: none;
             }
 
-            .nav-mobile-cta {
-                display: inline-flex !important;
+            .hamburger {
+                display: flex !important;
+            }
+
+            .mobile-menu {
+                display: block;
             }
         }
 
@@ -1311,17 +1315,92 @@
             }
         }
 
-        .nav-mobile-cta {
+        .hamburger {
             display: none;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 101;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 68px;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 20px 24px;
+            z-index: 99;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .mobile-menu a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: color 0.2s;
+        }
+
+        .mobile-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu a:hover {
+            color: var(--text-primary);
+        }
+
+        .mobile-menu .mobile-menu-cta {
+            display: inline-block;
+            margin-top: 16px;
             background: var(--gradient-main);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 28px;
             border-radius: 100px;
             font-weight: 600;
-            font-size: 0.85rem;
-            text-decoration: none;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
+            border: none;
             -webkit-text-fill-color: white;
         }
     </style>
@@ -1351,7 +1430,19 @@
                 <li><a href="#showcase">Showcase</a></li>
                 <li><a href="#pricing" class="nav-cta">Get Started</a></li>
             </ul>
-            <a href="#pricing" class="nav-mobile-cta">Get Started</a>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#use-cases">Use Cases</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#showcase">Showcase</a>
+            <a href="#pricing" class="mobile-menu-cta">Get Started</a>
         </div>
     </nav>
 
@@ -2208,6 +2299,28 @@
                 modalPayBtn.disabled = false;
             }
         });
+
+        // ════════════════════════════════════════
+        // ── Mobile Menu Toggle ──
+        // ════════════════════════════════════════
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+
+        if (hamburger && mobileMenu) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                mobileMenu.classList.toggle('open');
+            });
+
+            // Close menu when a link is clicked
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    mobileMenu.classList.remove('open');
+                });
+            });
+        }
     </script>
 
 </body>
