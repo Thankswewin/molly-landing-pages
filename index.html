@@ -1235,86 +1235,6 @@
             transform: translateY(0);
         }
 
-        /* ── Responsive ── */
-        @media (max-width: 900px) {
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .steps {
-                grid-template-columns: 1fr;
-                gap: 48px;
-            }
-
-            .steps::before {
-                display: none;
-            }
-
-            .bento-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .bento-card.wide {
-                grid-column: span 1;
-                flex-direction: column;
-                gap: 32px;
-            }
-
-            .specs-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .hamburger {
-                display: flex !important;
-            }
-
-            .mobile-menu {
-                display: block;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .features-grid,
-            .gallery-grid,
-            .video-grid,
-            .use-cases-grid,
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .gallery-item .gallery-caption,
-            .video-item .video-caption {
-                padding: 16px 12px 12px;
-                font-size: 0.8rem;
-            }
-
-
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .footer-inner {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-            }
-
-            .specs-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
         .hamburger {
             display: none;
             flex-direction: column;
@@ -1402,6 +1322,86 @@
             width: 100%;
             border: none;
             -webkit-text-fill-color: white;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .steps::before {
+                display: none;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bento-card.wide {
+                grid-column: span 1;
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .specs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex !important;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .features-grid,
+            .gallery-grid,
+            .video-grid,
+            .use-cases-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-item .gallery-caption,
+            .video-item .video-caption {
+                padding: 16px 12px 12px;
+                font-size: 0.8rem;
+            }
+
+
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .specs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
