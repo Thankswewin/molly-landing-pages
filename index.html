@@ -474,6 +474,20 @@
             object-fit: cover;
         }
 
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 10%;
+            width: 28%;
+            height: 45%;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+
         .gallery-item .gallery-caption {
             position: absolute;
             bottom: 0;
