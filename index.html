@@ -1571,123 +1571,56 @@
     </section>
 
     <!-- Features Section -->
-    <section class="features" id="features">
+    <section class="features" id="features" style="padding: 80px 0;">
         <div class="container">
-            <div class="section-header reveal">
+            <div class="section-header reveal" style="margin-bottom: 40px;">
                 <span class="section-label">Features</span>
                 <h2>Everything a Creator Needs</h2>
-                <p>Built for performance and simplicity. No bloat, no branding, no limits.</p>
+                <p>Compact, powerful, and built for performance.</p>
             </div>
 
-            <div class="features-grid">
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#a78bfa" />
-                                    <stop offset="1" stop-color="#3b82f6" />
-                                </linearGradient>
-                            </defs>
-                            <path
-                                d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14v-4zM3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"
-                                stroke="url(#g1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Camera Selection</h3>
-                    <p>Choose your preferred webcam on launch through an intuitive selection modal. Switch cameras
-                        mid-session without restarting.</p>
+            <div class="features-grid" style="grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <div class="feature-card reveal" style="padding: 24px; text-align: center;">
+                    <img src="./images/feature_camera_select.png" alt="Camera Selection"
+                        style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 12px; object-fit: cover;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Camera Selection</h3>
+                    <p style="font-size: 0.9rem;">Choose your preferred webcam instantly. Switch cameras mid-session
+                        without restarting.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="g2" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#f59e0b" />
-                                    <stop offset="1" stop-color="#ef4444" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="url(#g2)" stroke-width="1.8"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Auto-Start Sessions</h3>
-                    <p>Hit launch and you're live in seconds. Molly auto-starts your AI transformation session so you
-                        never miss a moment.</p>
+                <div class="feature-card reveal" style="padding: 24px; text-align: center;">
+                    <img src="./images/feature_auto_start.png" alt="Auto-Start"
+                        style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 12px; object-fit: cover;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Auto-Start Sessions</h3>
+                    <p style="font-size: 0.9rem;">Skip the setup. Molly remembers your character and resumes exactly
+                        where you left off.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="g3" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#34d399" />
-                                    <stop offset="1" stop-color="#3b82f6" />
-                                </linearGradient>
-                            </defs>
-                            <rect x="2" y="3" width="20" height="14" rx="2" stroke="url(#g3)" stroke-width="1.8" />
-                            <rect x="14" y="11" width="8" height="6" rx="1" stroke="url(#g3)" stroke-width="1.8" />
-                            <path d="M8 21h8" stroke="url(#g3)" stroke-width="1.8" stroke-linecap="round" />
-                            <path d="M12 17v4" stroke="url(#g3)" stroke-width="1.8" stroke-linecap="round" />
-                        </svg>
-                    </div>
-                    <h3>Picture-in-Picture</h3>
-                    <p>Pop out the AI output into a floating PiP window. Keep your transformation visible while working
-                        in other apps.</p>
+                <div class="feature-card reveal" style="padding: 24px; text-align: center;">
+                    <img src="./images/feature_pip.png" alt="Picture-in-Picture"
+                        style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 12px; object-fit: cover;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Picture-in-Picture</h3>
+                    <p style="font-size: 0.9rem;">Keep an eye on yourself. Compare your real webcam feed alongside the
+                        AI character output.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="g4" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#8b5cf6" />
-                                    <stop offset="1" stop-color="#ec4899" />
-                                </linearGradient>
-                            </defs>
-                            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
-                            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
-                            <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
-                            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="url(#g4)" stroke-width="1.8" />
-                        </svg>
-                    </div>
-                    <h3>OBS-Ready Output</h3>
-                    <p>Detach the output into a frameless, always-on-top window. Perfect for capturing in OBS or any
-                        streaming software.</p>
+                <div class="feature-card reveal" style="padding: 24px; text-align: center;">
+                    <img src="./images/feature_obs.png" alt="OBS Output"
+                        style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 12px; object-fit: cover;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">OBS-Ready Output</h3>
+                    <p style="font-size: 0.9rem;">Detachable, clean video output window meant to be easily captured by
+                        OBS or Streamlabs.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="g5" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#a78bfa" />
-                                    <stop offset="1" stop-color="#60a5fa" />
-                                </linearGradient>
-                            </defs>
-                            <path
-                                d="M12 2l2.09 6.26L20.18 9l-5 4.36L16.82 20 12 16.77 7.18 20l1.64-6.64-5-4.36 6.09-.74L12 2z"
-                                stroke="url(#g5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Zero Branding</h3>
-                    <p>All watermarks, logos, timers, and promotional elements are completely removed. What your
-                        audience sees is pure content.</p>
+                <div class="feature-card reveal" style="padding: 24px; text-align: center;">
+                    <img src="./images/feature_no_brand.png" alt="Zero Branding"
+                        style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 12px; object-fit: cover;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Zero Branding</h3>
+                    <p style="font-size: 0.9rem;">Your stream belongs to you. No watermarks, no forced logos, totally
+                        clean output.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="g6" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#c084fc" />
-                                    <stop offset="1" stop-color="#818cf8" />
-                                </linearGradient>
-                            </defs>
-                            <path
-                                d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-5.095-8 0-8zM5.822 8c5.096 0 5.096 8 0 8-5.095 0-5.095-8 0-8z"
-                                stroke="url(#g6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Unlimited Sessions</h3>
-                    <p>The session countdown timer is frozen so your creative flow runs uninterrupted for as long as you
-                        want.</p>
+                <div class="feature-card reveal" style="padding: 24px; text-align: center;">
+                    <img src="./images/feature_unlimited.png" alt="Unlimited Sessions"
+                        style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 12px; object-fit: cover;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Unlimited Sessions</h3>
+                    <p style="font-size: 0.9rem;">Run Molly for 10 minutes or 10 hours. Your license gives you
+                        unrestricted local access.</p>
                 </div>
             </div>
         </div>
