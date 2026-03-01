@@ -519,10 +519,10 @@
         .video-item::after {
             content: '';
             position: absolute;
-            top: 10%;
-            left: 8%;
-            width: 22%;
-            height: 40%;
+            top: 15%;
+            left: 10%;
+            width: 28%;
+            height: 45%;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 1;
@@ -1285,6 +1285,10 @@
                 display: none;
             }
 
+            .nav-mobile-cta {
+                display: inline-flex;
+            }
+
             .hero h1 {
                 font-size: 2.5rem;
             }
@@ -1303,6 +1307,20 @@
             .specs-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+        }
+
+        .nav-mobile-cta {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-main);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            -webkit-text-fill-color: white;
         }
     </style>
 </head>
@@ -1331,6 +1349,7 @@
                 <li><a href="#showcase">Showcase</a></li>
                 <li><a href="#pricing" class="nav-cta">Get Started</a></li>
             </ul>
+            <a href="#pricing" class="nav-mobile-cta">Get Started</a>
         </div>
     </nav>
 
