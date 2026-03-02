@@ -14,6 +14,7 @@ app.use(express.static(path.join(__dirname), {
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/videos', express.static(path.join(__dirname, 'videos')));
 app.use('/icon.png', express.static(path.join(__dirname, 'icon.png')));
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
 // SPA fallback — always serve index.html
 app.get('*', (req, res) => {
