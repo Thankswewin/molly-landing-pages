@@ -515,11 +515,19 @@
             cardSub.textContent = 'Enter the email you used during purchase to retrieve your key.';
         }
 
+        let retryCount = 0;
+
         async function fetchKeyByTxid(txid) {
+            retryCount++;
             showStatus('loading', '⏳ Retrieving your license key...');
 
+            // After 2 normal lookups, switch to active check-payment endpoint
+            const endpoint = retryCount > 2
+                ? `${API_BASE_URL}/api/check-payment/${encodeURIComponent(txid)}`
+                : `${API_BASE_URL}/api/lookup-key?txid=${encodeURIComponent(txid)}`;
+
             try {
-                const res = await fetch(`${API_BASE_URL}/api/lookup-key?txid=${encodeURIComponent(txid)}`);
+                const res = await fetch(endpoint);
                 const data = await res.json();
 
                 if (data.success) {
@@ -528,13 +536,17 @@
                     cardIcon.textContent = '✅';
                     cardTitle.textContent = 'Payment Successful!';
                     cardSub.textContent = `Your ${data.plan} license is ready. Copy the key below and paste it into Molly.`;
-                } else if (data.status === 'PENDING') {
-                    showStatus('pending', '⏳ Payment is still processing. This page will auto-refresh in 10 seconds...');
+                } else if (data.status === 'PENDING' || data.status === 'INIT' || data.status === 'CREATED') {
+                    showStatus('pending', `⏳ Payment is being confirmed (attempt ${retryCount}). Auto-checking again in 10 seconds...`);
                     cardIcon.textContent = '⏳';
                     cardTitle.textContent = 'Processing Payment...';
                     cardSub.textContent = 'Your payment is being confirmed. This usually takes 1-3 minutes.';
-                    // Auto-retry
-                    setTimeout(() => fetchKeyByTxid(txid), 10000);
+                    // Auto-retry (up to 30 attempts = 5 minutes)
+                    if (retryCount < 30) {
+                        setTimeout(() => fetchKeyByTxid(txid), 10000);
+                    } else {
+                        showStatus('error', 'Payment verification timed out. Please try the email lookup below or contact support.');
+                    }
                 } else {
                     showStatus('error', data.error || 'Unable to retrieve your key.');
                     cardIcon.textContent = '⚠️';
@@ -546,6 +558,10 @@
                 cardIcon.textContent = '⚠️';
                 cardTitle.textContent = 'Connection Error';
                 cardSub.textContent = 'Could not reach the server. Please try again.';
+                // Retry on network error too
+                if (retryCount < 30) {
+                    setTimeout(() => fetchKeyByTxid(txid), 10000);
+                }
             }
         }
 
